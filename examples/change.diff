@@ -1,0 +1,8 @@
+diff --git a/src/security/auth.mbt b/src/security/auth.mbt
+index 1111111..2222222 100644
+--- a/src/security/auth.mbt
++++ b/src/security/auth.mbt
+@@ -1 +1,2 @@
+-old_auth()
++new_auth()
++audit_auth()

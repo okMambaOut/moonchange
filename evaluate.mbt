@@ -271,6 +271,7 @@ pub struct AuditReport {
   total_lines : Int
   decisions : Array[PathDecision]
   findings : Array[Finding]
+  plan : ReviewPlan
 } derive(Eq, @debug.Debug)
 
 ///|
@@ -296,6 +297,11 @@ pub fn AuditReport::decisions(self : AuditReport) -> Array[PathDecision] {
 ///|
 pub fn AuditReport::findings(self : AuditReport) -> Array[Finding] {
   self.findings.copy()
+}
+
+///|
+pub fn AuditReport::plan(self : AuditReport) -> ReviewPlan {
+  self.plan
 }
 
 ///|
@@ -470,7 +476,8 @@ pub fn evaluate(policy : Policy, changes : ChangeSet) -> AuditReport {
       Attention => if status == GateStatus::Passed { status = Review }
     }
   }
-  { change_id: changes.id, status, total_lines, decisions, findings }
+  let plan = build_review_plan(decisions, evidence)
+  { change_id: changes.id, status, total_lines, decisions, findings, plan }
 }
 
 ///|
@@ -502,5 +509,6 @@ pub fn AuditReport::to_text(self : AuditReport) -> String {
   for finding in self.findings {
     output.write_string("\nFINDING " + finding.to_text())
   }
+  output.write_string("\nPLAN\n" + self.plan.to_text())
   output.to_string()
 }

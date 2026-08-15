@@ -21,6 +21,17 @@ test "evaluate complete evidence as passed" {
   assert_eq(decision.labels(), ["code", "security-reviewed"])
   assert_eq(decision.matched_rules(), ["security", "source"])
   assert_eq(decision.owner_pattern(), Some("src/security/**"))
+  let plan = report.plan()
+  assert_eq(plan.required_owners(), ["@maintainers", "@security"])
+  assert_eq(plan.approved_owners(), ["@maintainers", "@security"])
+  assert_eq(plan.unapproved_owners(), [])
+  assert_eq(plan.required_checks(), ["security", "unit"])
+  assert_eq(plan.passed_checks(), ["security", "unit"])
+  assert_eq(plan.missing_labels(), [])
+  assert_eq(plan.touched_rules(), ["security", "source"])
+  assert_eq(plan.maximum_path_approvals(), 2)
+  assert_true(plan.requires_release_note())
+  assert_true(plan.has_release_note())
 }
 
 ///|
@@ -35,6 +46,9 @@ test "missing review evidence produces review status" {
   assert_true(report.has_code("label.missing"))
   assert_true(report.has_code("release_note.missing"))
   assert_false(report.has_code("check.missing"))
+  assert_eq(report.plan().unapproved_owners(), ["@security"])
+  assert_eq(report.plan().unresolved_checks(), ["security"])
+  assert_eq(report.plan().missing_labels(), ["security-reviewed"])
 }
 
 ///|

@@ -1,0 +1,10 @@
+MOONCHANGE_EVIDENCE 1
+ID PR-43
+ACTOR @alice
+APPROVAL @maintainers
+APPROVAL @security
+CHECK unit passed
+CHECK security passed
+LABEL code
+LABEL security-reviewed
+RELEASE_NOTE yes

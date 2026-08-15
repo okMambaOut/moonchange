@@ -1,0 +1,7 @@
+import {
+  "okMambaOut/moonchange" @lib,
+  "moonbitlang/core/env",
+  "moonbitlang/x/sys",
+}
+
+pkgtype(kind: "executable")

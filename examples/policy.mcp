@@ -1,0 +1,6 @@
+MOONCHANGE_POLICY 1
+DEFAULT approvals=1 max_total=500 require_owned=yes
+OWNER **/* @maintainers
+OWNER src/security/** @security,@maintainers
+RULE source src/** approvals=1 checks=unit labels=code forbid=delete max_lines=200 release_note=no binary=deny
+RULE security src/security/** approvals=2 checks=security labels=security-reviewed forbid=rename max_lines=80 release_note=yes binary=deny
