@@ -1,0 +1,350 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "okMambaOut/moonchange"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn change_set_from_unified_diff(String, Evidence, String) -> Result[ChangeSet, Diagnostic]
+
+pub fn changes_from_unified_diff(String) -> Result[Array[Change], Diagnostic]
+
+pub fn compare_policies(Policy, Policy, Array[String]) -> Result[PolicyComparison, Diagnostic]
+
+pub fn evaluate(Policy, ChangeSet) -> AuditReport
+
+pub fn execute(Array[String]) -> CommandResult
+
+pub fn lint_policy(Policy) -> LintReport
+
+pub fn parse_manifest(String) -> Result[ChangeSet, Diagnostic]
+
+pub fn parse_policy(String) -> Result[Policy, Diagnostic]
+
+pub fn parse_review_evidence(String) -> Result[ReviewEvidence, Diagnostic]
+
+// Errors
+
+// Types and methods
+pub struct AuditReport {
+  change_id : String
+  status : GateStatus
+  total_lines : Int
+  decisions : Array[PathDecision]
+  findings : Array[Finding]
+  plan : ReviewPlan
+} derive(Eq, @debug.Debug)
+pub fn AuditReport::change_id(Self) -> String
+pub fn AuditReport::decisions(Self) -> Array[PathDecision]
+pub fn AuditReport::findings(Self) -> Array[Finding]
+pub fn AuditReport::has_code(Self, String) -> Bool
+pub fn AuditReport::plan(Self) -> ReviewPlan
+pub fn AuditReport::status(Self) -> GateStatus
+pub fn AuditReport::to_text(Self) -> String
+pub fn AuditReport::total_lines(Self) -> Int
+
+pub struct Change {
+  kind : ChangeKind
+  old_path : String?
+  new_path : String?
+  additions : Int
+  deletions : Int
+  binary : Bool
+} derive(Eq, @debug.Debug)
+pub fn Change::additions(Self) -> Int
+pub fn Change::changed_lines(Self) -> Int
+pub fn Change::deletions(Self) -> Int
+pub fn Change::is_binary(Self) -> Bool
+pub fn Change::kind(Self) -> ChangeKind
+pub fn Change::new(ChangeKind, String?, String?, Int, Int, binary? : Bool) -> Result[Self, Diagnostic]
+pub fn Change::new_path(Self) -> String?
+pub fn Change::old_path(Self) -> String?
+pub fn Change::policy_path(Self) -> String
+
+pub(all) enum ChangeKind {
+  Add
+  Modify
+  Delete
+  Rename
+  Copy
+} derive(Eq, @debug.Debug)
+pub fn ChangeKind::parse(String) -> Self?
+pub fn ChangeKind::to_text(Self) -> String
+
+pub struct ChangeSet {
+  id : String
+  changes : Array[Change]
+  evidence : Evidence
+} derive(Eq, @debug.Debug)
+pub fn ChangeSet::changes(Self) -> Array[Change]
+pub fn ChangeSet::evidence(Self) -> Evidence
+pub fn ChangeSet::id(Self) -> String
+pub fn ChangeSet::new(String, Array[Change], Evidence) -> Result[Self, Diagnostic]
+pub fn ChangeSet::to_text(Self) -> String
+
+pub struct CheckResult {
+  name : String
+  state : CheckState
+} derive(Eq, @debug.Debug)
+pub fn CheckResult::name(Self) -> String
+pub fn CheckResult::new(String, CheckState) -> Self
+pub fn CheckResult::state(Self) -> CheckState
+
+pub(all) enum CheckState {
+  Passed
+  Failed
+  Pending
+} derive(Eq, @debug.Debug)
+pub fn CheckState::parse(String) -> Self?
+pub fn CheckState::to_text(Self) -> String
+
+pub struct CommandResult {
+  exit_code : Int
+  output : String
+} derive(Eq, @debug.Debug)
+pub fn CommandResult::exit_code(Self) -> Int
+pub fn CommandResult::output(Self) -> String
+
+pub struct Diagnostic {
+  code : String
+  location : String
+  message : String
+  expected : String
+  actual : String
+} derive(Eq, @debug.Debug)
+pub fn Diagnostic::actual(Self) -> String
+pub fn Diagnostic::code(Self) -> String
+pub fn Diagnostic::expected(Self) -> String
+pub fn Diagnostic::location(Self) -> String
+pub fn Diagnostic::message(Self) -> String
+pub fn Diagnostic::new(String, String, String, String, String) -> Self
+pub fn Diagnostic::to_text(Self) -> String
+
+pub struct Evidence {
+  actor : String
+  approvals : Array[String]
+  checks : Array[CheckResult]
+  labels : Array[String]
+  release_note : Bool
+} derive(Eq, @debug.Debug)
+pub fn Evidence::actor(Self) -> String
+pub fn Evidence::approvals(Self) -> Array[String]
+pub fn Evidence::checks(Self) -> Array[CheckResult]
+pub fn Evidence::has_release_note(Self) -> Bool
+pub fn Evidence::labels(Self) -> Array[String]
+pub fn Evidence::new(String, Array[String], Array[CheckResult], Array[String], release_note? : Bool) -> Self
+
+pub struct Finding {
+  level : FindingLevel
+  code : String
+  path : String
+  message : String
+} derive(Eq, @debug.Debug)
+pub fn Finding::code(Self) -> String
+pub fn Finding::level(Self) -> FindingLevel
+pub fn Finding::message(Self) -> String
+pub fn Finding::new(FindingLevel, String, String, String) -> Self
+pub fn Finding::path(Self) -> String
+pub fn Finding::to_text(Self) -> String
+
+pub(all) enum FindingLevel {
+  Attention
+  Blocking
+} derive(Eq, @debug.Debug)
+pub fn FindingLevel::to_text(Self) -> String
+
+pub(all) enum GateStatus {
+  Passed
+  Review
+  Rejected
+} derive(Eq, @debug.Debug)
+pub fn GateStatus::to_text(Self) -> String
+
+pub struct GovernanceRule {
+  name : String
+  pattern : PathGlob
+  approvals : Int
+  checks : Array[String]
+  labels : Array[String]
+  forbidden : Array[ChangeKind]
+  max_lines : Int?
+  release_note : Bool
+  allow_binary : Bool
+} derive(Eq, @debug.Debug)
+pub fn GovernanceRule::allows_binary(Self) -> Bool
+pub fn GovernanceRule::approvals(Self) -> Int
+pub fn GovernanceRule::checks(Self) -> Array[String]
+pub fn GovernanceRule::forbidden(Self) -> Array[ChangeKind]
+pub fn GovernanceRule::labels(Self) -> Array[String]
+pub fn GovernanceRule::max_lines(Self) -> Int?
+pub fn GovernanceRule::name(Self) -> String
+pub fn GovernanceRule::new(String, PathGlob, approvals? : Int, checks? : Array[String], labels? : Array[String], forbidden? : Array[ChangeKind], max_lines? : Int?, release_note? : Bool, allow_binary? : Bool) -> Result[Self, Diagnostic]
+pub fn GovernanceRule::pattern(Self) -> PathGlob
+pub fn GovernanceRule::requires_release_note(Self) -> Bool
+
+pub struct LintIssue {
+  level : LintLevel
+  code : String
+  subject : String
+  message : String
+} derive(Eq, @debug.Debug)
+pub fn LintIssue::code(Self) -> String
+pub fn LintIssue::level(Self) -> LintLevel
+pub fn LintIssue::message(Self) -> String
+pub fn LintIssue::subject(Self) -> String
+pub fn LintIssue::to_text(Self) -> String
+
+pub(all) enum LintLevel {
+  LintInfo
+  LintWarning
+  LintError
+} derive(Eq, @debug.Debug)
+pub fn LintLevel::to_text(Self) -> String
+
+pub struct LintReport {
+  issues : Array[LintIssue]
+} derive(Eq, @debug.Debug)
+pub fn LintReport::has_code(Self, String) -> Bool
+pub fn LintReport::has_errors(Self) -> Bool
+pub fn LintReport::is_clean(Self) -> Bool
+pub fn LintReport::issues(Self) -> Array[LintIssue]
+pub fn LintReport::to_text(Self) -> String
+
+pub struct OwnerRule {
+  pattern : PathGlob
+  owners : Array[String]
+} derive(Eq, @debug.Debug)
+pub fn OwnerRule::new(PathGlob, Array[String]) -> Result[Self, Diagnostic]
+pub fn OwnerRule::owners(Self) -> Array[String]
+pub fn OwnerRule::pattern(Self) -> PathGlob
+
+pub struct PathDecision {
+  path : String
+  owners : Array[String]
+  owner_pattern : String?
+  matched_rules : Array[String]
+  approvals : Int
+  checks : Array[String]
+  labels : Array[String]
+  forbidden : Array[ChangeKind]
+  max_lines : Int?
+  release_note : Bool
+  allow_binary : Bool
+} derive(Eq, @debug.Debug)
+pub fn PathDecision::allows_binary(Self) -> Bool
+pub fn PathDecision::approvals(Self) -> Int
+pub fn PathDecision::checks(Self) -> Array[String]
+pub fn PathDecision::forbidden(Self) -> Array[ChangeKind]
+pub fn PathDecision::labels(Self) -> Array[String]
+pub fn PathDecision::matched_rules(Self) -> Array[String]
+pub fn PathDecision::max_lines(Self) -> Int?
+pub fn PathDecision::owner_pattern(Self) -> String?
+pub fn PathDecision::owners(Self) -> Array[String]
+pub fn PathDecision::path(Self) -> String
+pub fn PathDecision::requires_release_note(Self) -> Bool
+pub fn PathDecision::to_text(Self) -> String
+
+pub struct PathGlob {
+  source : String
+  segments : Array[String]
+  specificity : Int
+} derive(Eq, @debug.Debug)
+pub fn PathGlob::compile(String) -> Result[Self, Diagnostic]
+pub fn PathGlob::matches(Self, String) -> Bool
+pub fn PathGlob::source(Self) -> String
+pub fn PathGlob::specificity(Self) -> Int
+
+pub struct PathPolicyDelta {
+  path : String
+  before : PathDecision
+  after : PathDecision
+  owners : StringDelta
+  rules : StringDelta
+  checks : StringDelta
+  labels : StringDelta
+  forbidden : StringDelta
+} derive(Eq, @debug.Debug)
+pub fn PathPolicyDelta::after(Self) -> PathDecision
+pub fn PathPolicyDelta::before(Self) -> PathDecision
+pub fn PathPolicyDelta::changed(Self) -> Bool
+pub fn PathPolicyDelta::checks(Self) -> StringDelta
+pub fn PathPolicyDelta::forbidden(Self) -> StringDelta
+pub fn PathPolicyDelta::labels(Self) -> StringDelta
+pub fn PathPolicyDelta::owners(Self) -> StringDelta
+pub fn PathPolicyDelta::path(Self) -> String
+pub fn PathPolicyDelta::rules(Self) -> StringDelta
+
+pub struct Policy {
+  default_approvals : Int
+  max_total_lines : Int?
+  require_owned : Bool
+  owner_rules : Array[OwnerRule]
+  rules : Array[GovernanceRule]
+} derive(Eq, @debug.Debug)
+pub fn Policy::default_approvals(Self) -> Int
+pub fn Policy::explain(Self, String) -> Result[PathDecision, Diagnostic]
+pub fn Policy::max_total_lines(Self) -> Int?
+pub fn Policy::new(default_approvals? : Int, max_total_lines? : Int?, require_owned? : Bool, owner_rules? : Array[OwnerRule], rules? : Array[GovernanceRule]) -> Result[Self, Diagnostic]
+pub fn Policy::owner_rules(Self) -> Array[OwnerRule]
+pub fn Policy::requires_owned_paths(Self) -> Bool
+pub fn Policy::rules(Self) -> Array[GovernanceRule]
+pub fn Policy::to_text(Self) -> String
+
+pub struct PolicyComparison {
+  paths : Array[PathPolicyDelta]
+} derive(Eq, @debug.Debug)
+pub fn PolicyComparison::changed_count(Self) -> Int
+pub fn PolicyComparison::paths(Self) -> Array[PathPolicyDelta]
+pub fn PolicyComparison::to_text(Self) -> String
+
+pub struct ReviewEvidence {
+  id : String
+  evidence : Evidence
+} derive(Eq, @debug.Debug)
+pub fn ReviewEvidence::evidence(Self) -> Evidence
+pub fn ReviewEvidence::id(Self) -> String
+pub fn ReviewEvidence::to_text(Self) -> String
+
+pub struct ReviewPlan {
+  required_owners : Array[String]
+  approved_owners : Array[String]
+  unapproved_owners : Array[String]
+  required_checks : Array[String]
+  passed_checks : Array[String]
+  unresolved_checks : Array[String]
+  required_labels : Array[String]
+  present_labels : Array[String]
+  missing_labels : Array[String]
+  touched_rules : Array[String]
+  maximum_path_approvals : Int
+  release_note_required : Bool
+  release_note_present : Bool
+} derive(Eq, @debug.Debug)
+pub fn ReviewPlan::approved_owners(Self) -> Array[String]
+pub fn ReviewPlan::has_release_note(Self) -> Bool
+pub fn ReviewPlan::maximum_path_approvals(Self) -> Int
+pub fn ReviewPlan::missing_labels(Self) -> Array[String]
+pub fn ReviewPlan::passed_checks(Self) -> Array[String]
+pub fn ReviewPlan::present_labels(Self) -> Array[String]
+pub fn ReviewPlan::required_checks(Self) -> Array[String]
+pub fn ReviewPlan::required_labels(Self) -> Array[String]
+pub fn ReviewPlan::required_owners(Self) -> Array[String]
+pub fn ReviewPlan::requires_release_note(Self) -> Bool
+pub fn ReviewPlan::to_text(Self) -> String
+pub fn ReviewPlan::touched_rules(Self) -> Array[String]
+pub fn ReviewPlan::unapproved_owners(Self) -> Array[String]
+pub fn ReviewPlan::unresolved_checks(Self) -> Array[String]
+
+pub struct StringDelta {
+  added : Array[String]
+  removed : Array[String]
+} derive(Eq, @debug.Debug)
+pub fn StringDelta::added(Self) -> Array[String]
+pub fn StringDelta::changed(Self) -> Bool
+pub fn StringDelta::removed(Self) -> Array[String]
+
+// Type aliases
+
+// Traits
+

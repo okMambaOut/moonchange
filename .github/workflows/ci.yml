@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portable:
+    name: Portable checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies
+        run: moon update
+      - name: Format and strict checks
+        run: |
+          moon fmt --check
+          moon check --target wasm-gc --deny-warn
+          moon check --target wasm --deny-warn
+          moon check --target js --deny-warn
+      - name: Portable tests
+        run: |
+          moon test --target wasm-gc
+          moon test --target wasm
+          moon test --target js
+      - name: Exercise JavaScript CLI
+        run: |
+          moon run cmd/moonchange --target js -- demo | tee demo.txt
+          grep -q '^STATUS passed$' demo.txt
+          moon run cmd/moonchange --target js -- audit --policy examples/policy.mcp --manifest examples/manifest.mcm | tee audit.txt
+          grep -q '^STATUS passed$' audit.txt
+          moon run cmd/moonchange --target js -- audit-diff --policy examples/policy.mcp --evidence examples/evidence.mce --diff examples/change.diff | tee diff.txt
+          grep -q '^STATUS passed$' diff.txt
+          moon run cmd/moonchange --target js -- lint --policy examples/policy.mcp | tee lint.txt
+          grep -q '^CLEAN yes$' lint.txt
+          moon run cmd/moonchange --target js -- compare --before examples/policy-before.mcp --after examples/policy.mcp --paths examples/paths.txt | tee compare.txt
+          grep -q '^MOONCHANGE_COMPARE 1$' compare.txt
+
+  native:
+    name: Native checks and CLI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies
+        run: moon update
+      - name: Native verification
+        run: |
+          moon check --target native --deny-warn
+          moon test --target native
+          moon build cmd/moonchange --target native --release
+          moon run cmd/moonchange --target native -- audit --policy examples/policy.mcp --manifest examples/manifest.mcm | tee audit-native.txt
+          grep -q '^STATUS passed$' audit-native.txt
+          moon run cmd/moonchange --target native -- audit-diff --policy examples/policy.mcp --evidence examples/evidence.mce --diff examples/change.diff | tee diff-native.txt
+          grep -q '^STATUS passed$' diff-native.txt
