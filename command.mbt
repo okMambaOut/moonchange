@@ -27,6 +27,7 @@ fn usage() -> String {
   "  moonchange audit-diff --policy FILE --evidence FILE --diff FILE\n" +
   "  moonchange explain --policy FILE --path REPOSITORY_PATH\n" +
   "  moonchange lint --policy FILE\n" +
+  "  moonchange compare --before FILE --after FILE --paths FILE\n" +
   "  moonchange demo\n\n" +
   "EXIT CODES:\n" +
   "  0 passed, 1 needs review or has lint warnings, 2 rejected or invalid input"
@@ -142,16 +143,24 @@ fn read_cli_file(
 }
 
 ///|
-fn load_policy(args : Array[String]) -> Result[Policy, Diagnostic] {
-  let path = match cli_option(args, "--policy") {
+fn load_policy_option(
+  args : Array[String],
+  option_name : String,
+) -> Result[Policy, Diagnostic] {
+  let path = match cli_option(args, option_name) {
     Ok(value) => value
     Err(error) => return Err(error)
   }
-  let source = match read_cli_file(path, "--policy") {
+  let source = match read_cli_file(path, option_name) {
     Ok(value) => value
     Err(error) => return Err(error)
   }
   parse_policy(source)
+}
+
+///|
+fn load_policy(args : Array[String]) -> Result[Policy, Diagnostic] {
+  load_policy_option(args, "--policy")
 }
 
 ///|
@@ -272,6 +281,40 @@ fn lint_command(args : Array[String]) -> Result[CommandResult, Diagnostic] {
 }
 
 ///|
+fn compare_command(args : Array[String]) -> Result[CommandResult, Diagnostic] {
+  match cli_check_options(args, ["--before", "--after", "--paths"]) {
+    Ok(_) => ()
+    Err(error) => return Err(error)
+  }
+  let before = match load_policy_option(args, "--before") {
+    Ok(value) => value
+    Err(error) => return Err(error)
+  }
+  let after = match load_policy_option(args, "--after") {
+    Ok(value) => value
+    Err(error) => return Err(error)
+  }
+  let paths_file = match cli_option(args, "--paths") {
+    Ok(value) => value
+    Err(error) => return Err(error)
+  }
+  let paths_source = match read_cli_file(paths_file, "--paths") {
+    Ok(value) => value
+    Err(error) => return Err(error)
+  }
+  let paths : Array[String] = []
+  for line in split_owned_lines(paths_source) {
+    if !line.is_empty() && !line.has_prefix("#") {
+      paths.push(line)
+    }
+  }
+  match compare_policies(before, after, paths) {
+    Ok(report) => Ok(command_result(0, report.to_text()))
+    Err(error) => Err(error)
+  }
+}
+
+///|
 fn demo_command() -> Result[CommandResult, Diagnostic] {
   let policy = match
     parse_policy(
@@ -304,6 +347,7 @@ pub fn execute(args : Array[String]) -> CommandResult {
     "audit-diff" => audit_diff_command(args)
     "explain" => explain_command(args)
     "lint" => lint_command(args)
+    "compare" => compare_command(args)
     "demo" =>
       if args.length() == 1 {
         demo_command()
@@ -321,7 +365,7 @@ pub fn execute(args : Array[String]) -> CommandResult {
     command =>
       Err(
         Diagnostic::new(
-          "cli.command.unknown", "args[0]", "unknown command", "audit, audit-diff, explain, lint, demo, or help",
+          "cli.command.unknown", "args[0]", "unknown command", "audit, audit-diff, explain, lint, compare, demo, or help",
           command,
         ),
       )

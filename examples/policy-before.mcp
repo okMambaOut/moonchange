@@ -1,0 +1,4 @@
+MOONCHANGE_POLICY 1
+DEFAULT approvals=1 max_total=500 require_owned=yes
+OWNER **/* @maintainers
+RULE source src/** approvals=1 checks=unit labels=code max_lines=200

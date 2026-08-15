@@ -4,6 +4,7 @@ fn is_command(value : String) -> Bool {
   value == "audit-diff" ||
   value == "explain" ||
   value == "lint" ||
+  value == "compare" ||
   value == "demo" ||
   value == "help" ||
   value == "--help" ||
