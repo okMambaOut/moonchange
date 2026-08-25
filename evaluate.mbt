@@ -500,7 +500,7 @@ pub fn evaluate(policy : Policy, changes : ChangeSet) -> AuditReport {
 
 ///|
 pub fn AuditReport::to_text(self : AuditReport) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(
     "MOONCHANGE_REPORT 1\nID " +
     self.change_id +

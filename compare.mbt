@@ -202,7 +202,7 @@ fn delta_text(name : String, delta : StringDelta) -> String {
 
 ///|
 pub fn PolicyComparison::to_text(self : PolicyComparison) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(
     "MOONCHANGE_COMPARE 1\nPATHS " +
     self.paths.length().to_string() +

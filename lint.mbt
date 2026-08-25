@@ -174,7 +174,7 @@ pub fn lint_policy(policy : Policy) -> LintReport {
 
 ///|
 pub fn LintReport::to_text(self : LintReport) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("MOONCHANGE_LINT 1")
   if self.issues.is_empty() {
     output.write_string("\nCLEAN yes")
@@ -189,7 +189,7 @@ pub fn LintReport::to_text(self : LintReport) -> String {
 
 ///|
 pub fn PathDecision::to_text(self : PathDecision) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   let max_lines = match self.max_lines {
     Some(value) => value.to_string()
     None => "-"

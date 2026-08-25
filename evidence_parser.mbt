@@ -199,7 +199,7 @@ pub fn parse_review_evidence(
 
 ///|
 pub fn ReviewEvidence::to_text(self : ReviewEvidence) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   let release_note = if self.evidence.release_note { "yes" } else { "no" }
   output.write_string(
     "MOONCHANGE_EVIDENCE 1\nID " + self.id + "\nACTOR " + self.evidence.actor,

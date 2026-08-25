@@ -1,6 +1,6 @@
 ///|
 fn json_string(value : String) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_char('"')
   for char in value {
     match char {
@@ -25,7 +25,7 @@ fn json_string(value : String) -> String {
 
 ///|
 fn json_strings(values : Array[String]) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_char('[')
   for index, value in values {
     if index > 0 {
@@ -148,7 +148,7 @@ pub fn ReviewPlan::to_json(self : ReviewPlan) -> String {
 
 ///|
 pub fn AuditReport::to_json(self : AuditReport) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(
     "{\"schema\":\"moonchange.audit.v1\",\"change_id\":" +
     json_string(self.change_id) +
@@ -191,7 +191,7 @@ pub fn LintIssue::to_json(self : LintIssue) -> String {
 
 ///|
 pub fn LintReport::to_json(self : LintReport) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(
     "{\"schema\":\"moonchange.lint.v1\",\"clean\":" +
     json_bool(self.issues.is_empty()) +
@@ -244,7 +244,7 @@ pub fn PathPolicyDelta::to_json(self : PathPolicyDelta) -> String {
 
 ///|
 pub fn PolicyComparison::to_json(self : PolicyComparison) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(
     "{\"schema\":\"moonchange.compare.v1\",\"path_count\":" +
     self.paths.length().to_string() +

@@ -378,7 +378,7 @@ fn format_optional_csv(values : Array[String]) -> String {
 
 ///|
 pub fn Policy::to_text(self : Policy) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   let max_total = match self.max_total_lines {
     Some(value) => value.to_string()
     None => "-"
@@ -702,7 +702,7 @@ pub fn parse_manifest(source : String) -> Result[ChangeSet, Diagnostic] {
 
 ///|
 pub fn ChangeSet::to_text(self : ChangeSet) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   let release_note = if self.evidence.release_note { "yes" } else { "no" }
   output.write_string(
     "MOONCHANGE 1\nID " + self.id + "\nACTOR " + self.evidence.actor,
