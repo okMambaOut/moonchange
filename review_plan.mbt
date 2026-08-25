@@ -82,12 +82,10 @@ pub fn ReviewPlan::has_release_note(self : ReviewPlan) -> Bool {
 
 ///|
 fn check_is_passed(evidence : Evidence, name : String) -> Bool {
-  for check in evidence.checks {
-    if check.name == name && check.state == CheckState::Passed {
-      return true
-    }
+  match check_state(evidence, name) {
+    Some(CheckState::Passed) => true
+    _ => false
   }
-  false
 }
 
 ///|

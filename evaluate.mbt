@@ -228,12 +228,17 @@ pub fn Policy::explain(
 
 ///|
 fn check_state(evidence : Evidence, expected : String) -> CheckState? {
+  let mut state : CheckState? = None
   for result in evidence.checks {
     if result.name == expected {
-      return Some(result.state)
+      match result.state {
+        Failed => return Some(Failed)
+        Pending => state = Some(Pending)
+        Passed => if state is None { state = Some(Passed) }
+      }
     }
   }
-  None
+  state
 }
 
 ///|
@@ -345,7 +350,20 @@ fn evaluate_path(
     decision.owners,
     evidence.approvals,
   )
-  if owner_approvals < decision.approvals {
+  if !decision.owners.is_empty() &&
+    decision.approvals > decision.owners.length() {
+    add_finding(
+      findings,
+      Blocking,
+      "approval.quorum.impossible",
+      path,
+      "needs " +
+      decision.approvals.to_string() +
+      " owner approval(s), but only " +
+      decision.owners.length().to_string() +
+      " owner principal(s) are eligible",
+    )
+  } else if owner_approvals < decision.approvals {
     add_finding(
       findings,
       Attention,

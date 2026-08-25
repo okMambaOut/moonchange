@@ -18,6 +18,19 @@ test "parse and canonically serialize policy" {
 }
 
 ///|
+test "policy round trip preserves absent line budgets" {
+  let policy = parse_policy(
+    "MOONCHANGE_POLICY 1\nDEFAULT approvals=0 require_owned=no\nRULE observe **/* checks=unit",
+  ).unwrap()
+  assert_eq(policy.max_total_lines(), None)
+  assert_eq(policy.rules()[0].max_lines(), None)
+  let canonical = policy.to_text()
+  assert_true(canonical.contains("max_total=-"))
+  assert_true(canonical.contains("max_lines=-"))
+  assert_eq(parse_policy(canonical).unwrap(), policy)
+}
+
+///|
 test "parse and canonically serialize change manifest" {
   let changes = parse_manifest(manifest_fixture).unwrap()
   assert_eq(changes.id(), "PR-42")
@@ -107,5 +120,13 @@ test "manifest parser rejects malformed evidence and changes" {
     .unwrap_err()
     .code(),
     "manifest.change.shape",
+  )
+  assert_eq(
+    parse_manifest(
+      "MOONCHANGE 1\nID X\nACTOR @a\nRELEASE_NOTE no\nRELEASE_NOTE yes\nCHANGE add x 1 0 text",
+    )
+    .unwrap_err()
+    .code(),
+    "manifest.release_note.shape",
   )
 }

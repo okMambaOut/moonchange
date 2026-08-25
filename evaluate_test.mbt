@@ -66,6 +66,45 @@ test "hard policy failures reject change" {
 }
 
 ///|
+test "failed duplicate check dominates passed library evidence" {
+  let evidence = Evidence::new(
+    "@alice",
+    ["@maintainers"],
+    [
+      CheckResult::new("unit", CheckState::Passed),
+      CheckResult::new("unit", Failed),
+    ],
+    ["code"],
+  )
+  let changes = ChangeSet::new(
+    "API-1",
+    [
+      Change::new(Modify, Some("src/main.mbt"), Some("src/main.mbt"), 1, 0).unwrap(),
+    ],
+    evidence,
+  ).unwrap()
+  let report = evaluate(evaluation_policy(), changes)
+  assert_eq(report.status(), Rejected)
+  assert_true(report.has_code("check.failed"))
+  assert_eq(report.plan().passed_checks(), [])
+  assert_eq(report.plan().unresolved_checks(), ["unit"])
+}
+
+///|
+test "impossible owner quorum is a blocking policy failure" {
+  let policy = parse_policy(
+    "MOONCHANGE_POLICY 1\nDEFAULT approvals=2 require_owned=yes\nOWNER **/* @maintainers",
+  ).unwrap()
+  let manifest = parse_manifest(
+    "MOONCHANGE 1\nID PR-IMPOSSIBLE\nACTOR @alice\nAPPROVAL @maintainers\nRELEASE_NOTE no\nCHANGE modify src/main.mbt 1 0 text",
+  ).unwrap()
+  let report = evaluate(policy, manifest)
+  assert_eq(report.status(), Rejected)
+  assert_true(report.has_code("approval.quorum.impossible"))
+  assert_false(report.has_code("approval.missing"))
+}
+
+///|
 test "unowned paths reject when ownership is required" {
   let policy = parse_policy(
     "MOONCHANGE_POLICY 1\nDEFAULT approvals=0 require_owned=yes\nOWNER src/** @source",

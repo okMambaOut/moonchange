@@ -171,6 +171,7 @@ fn parse_governance_rule(
     None => []
   }
   let max_lines = match option_value(options, "max_lines") {
+    Some("-") => None
     Some(value) =>
       match
         parse_decimal(
@@ -298,6 +299,7 @@ pub fn parse_policy(source : String) -> Result[Policy, Diagnostic] {
           None => ()
         }
         match option_value(options, "max_total") {
+          Some("-") => max_total_lines = None
           Some(value) =>
             match
               parse_decimal(
@@ -379,7 +381,7 @@ pub fn Policy::to_text(self : Policy) -> String {
   let output = StringBuilder::new()
   let max_total = match self.max_total_lines {
     Some(value) => value.to_string()
-    None => "100000000"
+    None => "-"
   }
   let require_owned = if self.require_owned { "yes" } else { "no" }
   output.write_string("MOONCHANGE_POLICY 1\n")
@@ -400,7 +402,7 @@ pub fn Policy::to_text(self : Policy) -> String {
     let forbidden = rule.forbidden.map(fn(kind) { kind.to_text() })
     let max_lines = match rule.max_lines {
       Some(value) => value.to_string()
-      None => "10000000"
+      None => "-"
     }
     let release_note = if rule.release_note { "yes" } else { "no" }
     let binary = if rule.allow_binary { "allow" } else { "deny" }
@@ -549,6 +551,7 @@ pub fn parse_manifest(source : String) -> Result[ChangeSet, Diagnostic] {
   let labels : Array[String] = []
   let changes : Array[Change] = []
   let mut release_note = false
+  let mut saw_release_note = false
   for index = 1; index < lines.length(); index = index + 1 {
     let line = lines[index]
     if line.is_empty() || line.has_prefix("#") {
@@ -638,14 +641,15 @@ pub fn parse_manifest(source : String) -> Result[ChangeSet, Diagnostic] {
         push_unique_string(labels, fields[1])
       }
       "RELEASE_NOTE" => {
-        if fields.length() != 2 {
+        if fields.length() != 2 || saw_release_note {
           return Err(
             syntax_error(
-              "manifest.release_note.shape", index, "RELEASE_NOTE is malformed",
-              "RELEASE_NOTE yes|no", line,
+              "manifest.release_note.shape", index, "RELEASE_NOTE is duplicate or malformed",
+              "one RELEASE_NOTE yes|no", line,
             ),
           )
         }
+        saw_release_note = true
         release_note = match
           parse_yes_no(
             fields[1],
