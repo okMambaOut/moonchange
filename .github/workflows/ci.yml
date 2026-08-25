@@ -43,6 +43,10 @@ jobs:
           grep -q '^CLEAN yes$' lint.txt
           moon run cmd/moonchange --target js -- compare --before examples/policy-before.mcp --after examples/policy.mcp --paths examples/paths.txt | tee compare.txt
           grep -q '^MOONCHANGE_COMPARE 1$' compare.txt
+          moon run cmd/moonchange --target js -- audit --policy examples/policy.mcp --manifest examples/manifest.mcm --format json | tee audit.json
+          python -c 'import json; data=json.load(open("audit.json")); assert data["schema"] == "moonchange.audit.v1" and data["status"] == "passed"'
+          moon run cmd/moonchange --target js -- compare --before examples/policy-before.mcp --after examples/policy.mcp --paths examples/paths.txt --format json | tee compare.json
+          python -c 'import json; data=json.load(open("compare.json")); assert data["schema"] == "moonchange.compare.v1" and data["path_count"] == 2'
 
   native:
     name: Native checks and CLI
@@ -64,3 +68,5 @@ jobs:
           grep -q '^STATUS passed$' audit-native.txt
           moon run cmd/moonchange --target native -- audit-diff --policy examples/policy.mcp --evidence examples/evidence.mce --diff examples/change.diff | tee diff-native.txt
           grep -q '^STATUS passed$' diff-native.txt
+          moon run cmd/moonchange --target native -- audit --policy examples/policy.mcp --manifest examples/manifest.mcm --format json | tee audit-native.json
+          python -c 'import json; data=json.load(open("audit-native.json")); assert data["schema"] == "moonchange.audit.v1" and data["status"] == "passed"'

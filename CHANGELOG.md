@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0 - 2026-08-25
+
+- Preserve absent total and per-path line budgets across canonical round trips.
+- Reconcile duplicate library check states conservatively so failed or pending
+  evidence cannot be masked by a passed result.
+- Reject owner approval quorums that exceed the eligible owner pool.
+- Reject duplicate `RELEASE_NOTE` fields in explicit manifests.
+- Add deterministic versioned JSON for audit, explain, lint, comparison, and
+  demo CLI workflows through `--format text|json`.
+- Expand regression coverage and CI parsing of machine-readable output.
+
 ## 0.1.0 - 2026-08-15
 
 - Model safe repository changes, evidence, owner rules, and governance rules.

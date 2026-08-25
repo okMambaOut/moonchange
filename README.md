@@ -29,6 +29,8 @@ converts only its `PatchInfo` metadata into governance inputs.
   forbidden operations, binary restrictions, and release-note requirements.
 - Review both source and destination paths for rename operations.
 - Produce stable findings, an aggregate review plan, and CI-oriented exit codes.
+- Emit deterministic versioned JSON for audit, explain, lint, and comparison
+  workflows without changing the default human-readable output.
 - Explain one path, lint ineffective policies, and compare old/new policies for
   a concrete path inventory.
 - Consume unified-diff file metadata through `mizchi/bit_apply` without
@@ -51,7 +53,8 @@ Audit the committed explicit manifest example:
 ```sh
 moon run cmd/moonchange --target js -- audit \
   --policy examples/policy.mcp \
-  --manifest examples/manifest.mcm
+  --manifest examples/manifest.mcm \
+  --format json
 ```
 
 Audit the same workflow from a real Git diff plus review evidence:
@@ -83,6 +86,10 @@ moon run cmd/moonchange --target js -- compare \
 Exit code `0` means passed/clean, `1` means review evidence or lint attention is
 needed, and `2` means rejected or invalid input.
 
+All report commands accept `--format text|json`. JSON documents use explicit
+schema identifiers such as `moonchange.audit.v1`; field order is deterministic,
+but consumers should select fields by name.
+
 ## Policy Format
 
 ```text
@@ -96,7 +103,8 @@ RULE source src/** approvals=1 checks=unit labels=code forbid=delete max_lines=2
 Owner lists are alternatives used to satisfy the path quorum. All matching
 `RULE` lines contribute obligations. Approval counts take the maximum, line
 budgets take the minimum, sets are unioned, and boolean restrictions use the
-strictest result.
+strictest result. Use `max_total=-` or `max_lines=-` for no limit. A quorum
+larger than the resolved owner pool is rejected as an impossible policy.
 
 ## Explicit Manifest Format
 
@@ -119,6 +127,10 @@ path. Each change ends with additions, deletions, and `text` or `binary`.
 `audit-diff` uses a separate `MOONCHANGE_EVIDENCE 1` file containing the same
 ID, actor, approval, check, label, and release-note fields. File operations and
 line counts come exclusively from upstream `PatchInfo` values.
+
+For callers constructing `Evidence` directly, duplicate check names are
+reconciled conservatively: `failed` dominates `pending`, which dominates
+`passed`. Text parsers reject duplicates so file inputs remain unambiguous.
 
 ## Library
 

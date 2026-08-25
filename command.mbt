@@ -28,7 +28,8 @@ fn usage() -> String {
   "  moonchange explain --policy FILE --path REPOSITORY_PATH\n" +
   "  moonchange lint --policy FILE\n" +
   "  moonchange compare --before FILE --after FILE --paths FILE\n" +
-  "  moonchange demo\n\n" +
+  "  moonchange demo [--format text|json]\n\n" +
+  "All report commands accept --format text|json (default: text).\n\n" +
   "EXIT CODES:\n" +
   "  0 passed, 1 needs review or has lint warnings, 2 rejected or invalid input"
 }
@@ -76,6 +77,34 @@ fn cli_option(
           "missing",
         ),
       )
+  }
+}
+
+///|
+fn cli_optional_option(
+  args : Array[String],
+  name : String,
+) -> Result[String?, Diagnostic] {
+  match cli_option(args, name) {
+    Ok(value) => Ok(Some(value))
+    Err(error) if error.code() == "cli.option.required" => Ok(None)
+    Err(error) => Err(error)
+  }
+}
+
+///|
+fn cli_output_format(args : Array[String]) -> Result[String, Diagnostic] {
+  match cli_optional_option(args, "--format") {
+    Ok(Some("text")) | Ok(None) => Ok("text")
+    Ok(Some("json")) => Ok("json")
+    Ok(Some(value)) =>
+      Err(
+        Diagnostic::new(
+          "cli.format.invalid", "--format", "output format is unsupported", "text or json",
+          value,
+        ),
+      )
+    Err(error) => Err(error)
   }
 }
 
@@ -174,7 +203,7 @@ fn gate_exit(status : GateStatus) -> Int {
 
 ///|
 fn audit_command(args : Array[String]) -> Result[CommandResult, Diagnostic] {
-  match cli_check_options(args, ["--policy", "--manifest"]) {
+  match cli_check_options(args, ["--policy", "--manifest", "--format"]) {
     Ok(_) => ()
     Err(error) => return Err(error)
   }
@@ -195,14 +224,24 @@ fn audit_command(args : Array[String]) -> Result[CommandResult, Diagnostic] {
     Err(error) => return Err(error)
   }
   let report = evaluate(policy, changes)
-  Ok(command_result(gate_exit(report.status), report.to_text()))
+  let format = match cli_output_format(args) {
+    Ok(value) => value
+    Err(error) => return Err(error)
+  }
+  let output = if format == "json" {
+    report.to_json()
+  } else {
+    report.to_text()
+  }
+  Ok(command_result(gate_exit(report.status), output))
 }
 
 ///|
 fn audit_diff_command(
   args : Array[String],
 ) -> Result[CommandResult, Diagnostic] {
-  match cli_check_options(args, ["--policy", "--evidence", "--diff"]) {
+  match
+    cli_check_options(args, ["--policy", "--evidence", "--diff", "--format"]) {
     Ok(_) => ()
     Err(error) => return Err(error)
   }
@@ -236,12 +275,21 @@ fn audit_diff_command(
     Err(error) => return Err(error)
   }
   let report = evaluate(policy, changes)
-  Ok(command_result(gate_exit(report.status), report.to_text()))
+  let format = match cli_output_format(args) {
+    Ok(value) => value
+    Err(error) => return Err(error)
+  }
+  let output = if format == "json" {
+    report.to_json()
+  } else {
+    report.to_text()
+  }
+  Ok(command_result(gate_exit(report.status), output))
 }
 
 ///|
 fn explain_command(args : Array[String]) -> Result[CommandResult, Diagnostic] {
-  match cli_check_options(args, ["--policy", "--path"]) {
+  match cli_check_options(args, ["--policy", "--path", "--format"]) {
     Ok(_) => ()
     Err(error) => return Err(error)
   }
@@ -253,15 +301,29 @@ fn explain_command(args : Array[String]) -> Result[CommandResult, Diagnostic] {
     Ok(value) => value
     Err(error) => return Err(error)
   }
+  let format = match cli_output_format(args) {
+    Ok(value) => value
+    Err(error) => return Err(error)
+  }
   match policy.explain(path) {
-    Ok(value) => Ok(command_result(0, value.to_text()))
+    Ok(value) =>
+      Ok(
+        command_result(
+          0,
+          if format == "json" {
+            value.to_explain_json()
+          } else {
+            value.to_text()
+          },
+        ),
+      )
     Err(error) => Err(error)
   }
 }
 
 ///|
 fn lint_command(args : Array[String]) -> Result[CommandResult, Diagnostic] {
-  match cli_check_options(args, ["--policy"]) {
+  match cli_check_options(args, ["--policy", "--format"]) {
     Ok(_) => ()
     Err(error) => return Err(error)
   }
@@ -277,12 +339,22 @@ fn lint_command(args : Array[String]) -> Result[CommandResult, Diagnostic] {
   } else {
     1
   }
-  Ok(command_result(exit_code, report.to_text()))
+  let format = match cli_output_format(args) {
+    Ok(value) => value
+    Err(error) => return Err(error)
+  }
+  let output = if format == "json" {
+    report.to_json()
+  } else {
+    report.to_text()
+  }
+  Ok(command_result(exit_code, output))
 }
 
 ///|
 fn compare_command(args : Array[String]) -> Result[CommandResult, Diagnostic] {
-  match cli_check_options(args, ["--before", "--after", "--paths"]) {
+  match
+    cli_check_options(args, ["--before", "--after", "--paths", "--format"]) {
     Ok(_) => ()
     Err(error) => return Err(error)
   }
@@ -308,14 +380,32 @@ fn compare_command(args : Array[String]) -> Result[CommandResult, Diagnostic] {
       paths.push(line)
     }
   }
+  let format = match cli_output_format(args) {
+    Ok(value) => value
+    Err(error) => return Err(error)
+  }
   match compare_policies(before, after, paths) {
-    Ok(report) => Ok(command_result(0, report.to_text()))
+    Ok(report) =>
+      Ok(
+        command_result(
+          0,
+          if format == "json" {
+            report.to_json()
+          } else {
+            report.to_text()
+          },
+        ),
+      )
     Err(error) => Err(error)
   }
 }
 
 ///|
-fn demo_command() -> Result[CommandResult, Diagnostic] {
+fn demo_command(args : Array[String]) -> Result[CommandResult, Diagnostic] {
+  match cli_check_options(args, ["--format"]) {
+    Ok(_) => ()
+    Err(error) => return Err(error)
+  }
   let policy = match
     parse_policy(
       "MOONCHANGE_POLICY 1\nDEFAULT approvals=1 max_total=300 require_owned=yes\nOWNER **/* @maintainers\nOWNER src/security/** @security,@maintainers\nRULE source src/** approvals=1 checks=unit labels=code forbid=delete max_lines=200 release_note=no binary=deny\nRULE security src/security/** approvals=2 checks=security labels=security-reviewed forbid=rename max_lines=80 release_note=yes binary=deny",
@@ -331,7 +421,16 @@ fn demo_command() -> Result[CommandResult, Diagnostic] {
     Err(error) => return Err(error)
   }
   let report = evaluate(policy, changes)
-  Ok(command_result(gate_exit(report.status), report.to_text()))
+  let format = match cli_output_format(args) {
+    Ok(value) => value
+    Err(error) => return Err(error)
+  }
+  let output = if format == "json" {
+    report.to_json()
+  } else {
+    report.to_text()
+  }
+  Ok(command_result(gate_exit(report.status), output))
 }
 
 ///|
@@ -348,20 +447,7 @@ pub fn execute(args : Array[String]) -> CommandResult {
     "explain" => explain_command(args)
     "lint" => lint_command(args)
     "compare" => compare_command(args)
-    "demo" =>
-      if args.length() == 1 {
-        demo_command()
-      } else {
-        Err(
-          Diagnostic::new(
-            "cli.argument.unexpected",
-            "args[1]",
-            "demo accepts no arguments",
-            "no arguments",
-            args[1],
-          ),
-        )
-      }
+    "demo" => demo_command(args)
     command =>
       Err(
         Diagnostic::new(

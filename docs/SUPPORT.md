@@ -18,6 +18,9 @@
 | Binary detection from diff | Unsupported | `PatchInfo` has no binary flag |
 | Policy lint | Supported | Overrides, coverage, empty rules, unscoped quorum |
 | Policy comparison | Supported | Concrete path inventory, deterministic delta |
+| Versioned JSON reports | Supported | Audit, explain, lint, and policy comparison |
+| Duplicate library check states | Supported | Strictest state wins; text inputs reject duplicates |
+| Impossible owner quorum | Supported | Rejected as a blocking policy failure |
 | Git commands / repository mutation | Unsupported | Input files only |
 | Diff generation or hunk reconstruction | Unsupported | Outside project identity |
 | Patch application or reversal | Unsupported | Use upstream tooling |
@@ -30,9 +33,13 @@ Diagnostics use stable dot-separated codes. Human-readable messages may improve
 in minor versions. CLI exit codes are `0` for passed/clean, `1` for review or
 lint attention, and `2` for rejection, lint errors, or invalid input.
 
+Report commands accept `--format text|json`; omitted format means `text`.
+Machine consumers should validate the JSON `schema` field before processing.
+
 ## Input Safety
 
 Paths cannot be absolute, slash-terminated, use backslashes, or contain empty,
 `.` or `..` segments. Globs reject bracket/brace syntax and embedded `**`.
 Numeric fields have explicit upper bounds. Parsers accept LF and CRLF input and
-emit LF canonical text.
+emit LF canonical text. A hyphen represents an absent optional line budget and
+survives parse/serialize round trips without becoming a numeric sentinel.

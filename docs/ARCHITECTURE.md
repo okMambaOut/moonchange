@@ -53,6 +53,19 @@ Reports retain ordered per-path decisions and findings. `ReviewPlan` aggregates
 owners, checks, labels, touched rules, maximum path quorum, and release-note
 state for consumers that need a concise checklist.
 
+When library callers provide repeated states for the same check, evaluation
+uses the strictest result (`failed`, then `pending`, then `passed`). Owner
+quorums larger than the eligible owner set are blocking configuration failures,
+not indefinitely pending reviews.
+
+## Output Adapters
+
+Every report model owns both a stable text renderer and a compact JSON renderer.
+JSON strings escape quotes, backslashes, common whitespace, and all remaining
+control characters. Versioned schema names separate audit, lint, and policy
+comparison documents. The CLI selects an adapter only after evaluation, so
+format choice cannot affect the gate decision or exit code.
+
 ## Upstream Diff Boundary
 
 `diff_adapter.mbt` calls `@bit_apply.parse_patches` and reads public `PatchInfo`

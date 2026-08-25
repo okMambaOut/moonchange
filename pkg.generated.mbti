@@ -41,6 +41,7 @@ pub fn AuditReport::findings(Self) -> Array[Finding]
 pub fn AuditReport::has_code(Self, String) -> Bool
 pub fn AuditReport::plan(Self) -> ReviewPlan
 pub fn AuditReport::status(Self) -> GateStatus
+pub fn AuditReport::to_json(Self) -> String
 pub fn AuditReport::to_text(Self) -> String
 pub fn AuditReport::total_lines(Self) -> Int
 
@@ -146,6 +147,7 @@ pub fn Finding::level(Self) -> FindingLevel
 pub fn Finding::message(Self) -> String
 pub fn Finding::new(FindingLevel, String, String, String) -> Self
 pub fn Finding::path(Self) -> String
+pub fn Finding::to_json(Self) -> String
 pub fn Finding::to_text(Self) -> String
 
 pub(all) enum FindingLevel {
@@ -193,6 +195,7 @@ pub fn LintIssue::code(Self) -> String
 pub fn LintIssue::level(Self) -> LintLevel
 pub fn LintIssue::message(Self) -> String
 pub fn LintIssue::subject(Self) -> String
+pub fn LintIssue::to_json(Self) -> String
 pub fn LintIssue::to_text(Self) -> String
 
 pub(all) enum LintLevel {
@@ -209,6 +212,7 @@ pub fn LintReport::has_code(Self, String) -> Bool
 pub fn LintReport::has_errors(Self) -> Bool
 pub fn LintReport::is_clean(Self) -> Bool
 pub fn LintReport::issues(Self) -> Array[LintIssue]
+pub fn LintReport::to_json(Self) -> String
 pub fn LintReport::to_text(Self) -> String
 
 pub struct OwnerRule {
@@ -243,6 +247,8 @@ pub fn PathDecision::owner_pattern(Self) -> String?
 pub fn PathDecision::owners(Self) -> Array[String]
 pub fn PathDecision::path(Self) -> String
 pub fn PathDecision::requires_release_note(Self) -> Bool
+pub fn PathDecision::to_explain_json(Self) -> String
+pub fn PathDecision::to_json(Self) -> String
 pub fn PathDecision::to_text(Self) -> String
 
 pub struct PathGlob {
@@ -274,6 +280,7 @@ pub fn PathPolicyDelta::labels(Self) -> StringDelta
 pub fn PathPolicyDelta::owners(Self) -> StringDelta
 pub fn PathPolicyDelta::path(Self) -> String
 pub fn PathPolicyDelta::rules(Self) -> StringDelta
+pub fn PathPolicyDelta::to_json(Self) -> String
 
 pub struct Policy {
   default_approvals : Int
@@ -296,6 +303,7 @@ pub struct PolicyComparison {
 } derive(Eq, @debug.Debug)
 pub fn PolicyComparison::changed_count(Self) -> Int
 pub fn PolicyComparison::paths(Self) -> Array[PathPolicyDelta]
+pub fn PolicyComparison::to_json(Self) -> String
 pub fn PolicyComparison::to_text(Self) -> String
 
 pub struct ReviewEvidence {
@@ -331,6 +339,7 @@ pub fn ReviewPlan::required_checks(Self) -> Array[String]
 pub fn ReviewPlan::required_labels(Self) -> Array[String]
 pub fn ReviewPlan::required_owners(Self) -> Array[String]
 pub fn ReviewPlan::requires_release_note(Self) -> Bool
+pub fn ReviewPlan::to_json(Self) -> String
 pub fn ReviewPlan::to_text(Self) -> String
 pub fn ReviewPlan::touched_rules(Self) -> Array[String]
 pub fn ReviewPlan::unapproved_owners(Self) -> Array[String]
@@ -343,6 +352,7 @@ pub struct StringDelta {
 pub fn StringDelta::added(Self) -> Array[String]
 pub fn StringDelta::changed(Self) -> Bool
 pub fn StringDelta::removed(Self) -> Array[String]
+pub fn StringDelta::to_json(Self) -> String
 
 // Type aliases
 
