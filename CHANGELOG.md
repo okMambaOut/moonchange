@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased — maintenance
+## 0.2.1 — 2026-09-12
 
+- Publish the maintenance distribution under `ZJH-666-ZJH/moonchange`; retain the original repository and attribution.
 - Reduce character and path glob DP state to a single row without API changes.
 - Add 13,091 exhaustive recursive-oracle pairs plus length/depth regressions.
 - Document reproducible quality bounds and contributor attribution.

@@ -181,3 +181,17 @@ The path matcher uses linear auxiliary state without changing its public API.
 The suite includes 13,091 exhaustive oracle pairs and maximum-length/depth
 regressions. See [the maintenance report](docs/MAINTENANCE.md) for exact scope,
 state-slot reductions, reproduction commands and measurement limitations.
+
+## MoonCakes distribution
+
+The maintained release is distributed as `ZJH-666-ZJH/moonchange@0.2.1`:
+
+```sh
+moon add ZJH-666-ZJH/moonchange@0.2.1
+```
+
+Import `ZJH-666-ZJH/moonchange` in your package manifest (for example with
+alias `moonchange`). The repository remains `okMambaOut/moonchange`; this is
+an explicitly attributed maintenance distribution, not a claim that the
+original project was authored by ZJH-666-ZJH. Existing consumers of an older
+namespace must update their module dependency and package import paths.
