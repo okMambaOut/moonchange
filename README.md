@@ -171,6 +171,13 @@ See [Support](docs/SUPPORT.md), [Architecture](docs/ARCHITECTURE.md), and
 
 ## License
 
-MoonChange is MIT licensed. Copyright and commits are attributed to
-`okMambaOut`. See [Third-Party Notices](THIRD_PARTY.md) and
+MoonChange is MIT licensed. Original implementation: `okMambaOut`; maintenance
+contributors are recorded in [CONTRIBUTORS.md](CONTRIBUTORS.md). See [Third-Party Notices](THIRD_PARTY.md) and
 [AI Usage](AI_USAGE.md).
+
+## Maintenance quality evidence
+
+The path matcher uses linear auxiliary state without changing its public API.
+The suite includes 13,091 exhaustive oracle pairs and maximum-length/depth
+regressions. See [the maintenance report](docs/MAINTENANCE.md) for exact scope,
+state-slot reductions, reproduction commands and measurement limitations.

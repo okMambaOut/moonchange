@@ -16,7 +16,7 @@ pub fn CommandResult::output(self : CommandResult) -> String {
 
 ///|
 fn command_result(exit_code : Int, output : String) -> CommandResult {
-  { exit_code, output }
+  { exit_code, output, }
 }
 
 ///|

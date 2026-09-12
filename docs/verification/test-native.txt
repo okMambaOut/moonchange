@@ -1,0 +1,6 @@
+Error: failed to run test for target Native
+
+Caused by:
+    0: Failed to build a build plan for the modules
+    1: Failed to set C compiler when compiling okMambaOut/moonchange/cmd/moonchange@0.2.0
+    2: no system C compiler found; tried cl, cc, gcc, clang

@@ -1,0 +1,19 @@
+MOONCHANGE_REPORT 1
+ID PR-43
+STATUS passed
+TOTAL_LINES 3
+PATH src/security/auth.mbt owners=@security,@maintainers owner_pattern=src/security/** approvals=2 rules=security,source
+PLAN
+REQUIRED_OWNERS @maintainers,@security
+APPROVED_OWNERS @maintainers,@security
+UNAPPROVED_OWNERS -
+REQUIRED_CHECKS security,unit
+PASSED_CHECKS security,unit
+UNRESOLVED_CHECKS -
+REQUIRED_LABELS code,security-reviewed
+PRESENT_LABELS code,security-reviewed
+MISSING_LABELS -
+TOUCHED_RULES security,source
+MAX_PATH_APPROVALS 2
+RELEASE_NOTE_REQUIRED yes
+RELEASE_NOTE_PRESENT yes

@@ -43,7 +43,7 @@ pub fn Finding::new(
   path : String,
   message : String,
 ) -> Finding {
-  { level, code, path, message }
+  { level, code, path, message, }
 }
 
 ///|
@@ -495,7 +495,7 @@ pub fn evaluate(policy : Policy, changes : ChangeSet) -> AuditReport {
     }
   }
   let plan = build_review_plan(decisions, evidence)
-  { change_id: changes.id, status, total_lines, decisions, findings, plan }
+  { change_id: changes.id, status, total_lines, decisions, findings, plan, }
 }
 
 ///|

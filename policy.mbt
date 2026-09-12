@@ -32,7 +32,7 @@ pub fn OwnerRule::new(
     }
     push_unique_string(normalized, owner)
   }
-  Ok({ pattern, owners: normalized })
+  Ok({ pattern, owners: normalized, })
 }
 
 ///|

@@ -35,7 +35,7 @@ fn string_delta(before : Array[String], after : Array[String]) -> StringDelta {
   }
   added.sort_by(fn(left, right) { left.lexical_compare(right) })
   removed.sort_by(fn(left, right) { left.lexical_compare(right) })
-  { added, removed }
+  { added, removed, }
 }
 
 ///|
@@ -186,7 +186,7 @@ pub fn compare_policies(
       ),
     })
   }
-  Ok({ paths: deltas })
+  Ok({ paths: deltas, })
 }
 
 ///|

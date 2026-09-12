@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — maintenance
+
+- Reduce character and path glob DP state to a single row without API changes.
+- Add 13,091 exhaustive recursive-oracle pairs plus length/depth regressions.
+- Document reproducible quality bounds and contributor attribution.
+
 ## 0.2.0 - 2026-08-25
 
 - Preserve absent total and per-path line budgets across canonical round trips.
