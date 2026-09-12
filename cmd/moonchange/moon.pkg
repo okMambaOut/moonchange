@@ -1,5 +1,5 @@
 import {
-  "okMambaOut/moonchange" @lib,
+  "ZJH-666-ZJH/moonchange" @lib,
   "moonbitlang/core/env",
   "moonbitlang/x/sys",
 }
