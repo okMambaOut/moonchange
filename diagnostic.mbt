@@ -16,7 +16,7 @@ pub fn Diagnostic::new(
   expected : String,
   actual : String,
 ) -> Diagnostic {
-  { code, location, message, expected, actual }
+  { code, location, message, expected, actual, }
 }
 
 ///|

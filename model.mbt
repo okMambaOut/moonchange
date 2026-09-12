@@ -157,7 +157,7 @@ pub fn Change::new(
       }
     None => ()
   }
-  Ok({ kind, old_path, new_path, additions, deletions, binary })
+  Ok({ kind, old_path, new_path, additions, deletions, binary, })
 }
 
 ///|
@@ -237,7 +237,7 @@ pub struct CheckResult {
 
 ///|
 pub fn CheckResult::new(name : String, state : CheckState) -> CheckResult {
-  { name, state }
+  { name, state, }
 }
 
 ///|
@@ -341,7 +341,7 @@ pub fn ChangeSet::new(
       ),
     )
   }
-  Ok({ id, changes: changes.copy(), evidence })
+  Ok({ id, changes: changes.copy(), evidence, })
 }
 
 ///|

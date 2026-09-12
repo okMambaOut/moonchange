@@ -74,7 +74,7 @@ pub fn PathGlob::compile(source : String) -> Result[PathGlob, Diagnostic] {
       specificity = specificity + 2
     }
   }
-  Ok({ source, segments, specificity })
+  Ok({ source, segments, specificity, })
 }
 
 ///|

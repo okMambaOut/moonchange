@@ -59,3 +59,12 @@ the upstream diff metadata does not expose binary classification.
 
 Reference for users comparing workflows:
 https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+## CI formatter compatibility
+
+The first remote native job passed all 42 tests. The portable job exposed an
+upstream formatter change (trailing commas in inline record expressions).
+The maintenance branch applies those 11 formatting-only updates in seven files.
+Local logs record the July toolchain before these formatter-only adjustments;
+the remote CI format gate is authoritative for the September formatter.
+
