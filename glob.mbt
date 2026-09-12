@@ -89,30 +89,24 @@ pub fn PathGlob::specificity(self : PathGlob) -> Int {
 
 ///|
 fn segment_matches(pattern : String, value : String) -> Bool {
-  let width = value.length() + 1
-  let table = Array::make((pattern.length() + 1) * width, false)
-  table[0] = true
+  // Keep only the previous pattern row. Updating left-to-right lets '*'
+  // consume the current row while literals read the saved diagonal.
+  let row = Array::make(value.length() + 1, false)
+  row[0] = true
   for p = 0; p < pattern.length(); p = p + 1 {
-    for v = 0; v <= value.length(); v = v + 1 {
-      if !table[p * width + v] {
-        continue
+    let mut diagonal = row[0]
+    row[0] = row[0] && pattern[p] == '*'
+    for v = 1; v <= value.length(); v = v + 1 {
+      let previous = row[v]
+      row[v] = match pattern[p] {
+        '*' => previous || row[v - 1]
+        '?' => diagonal
+        literal => diagonal && value[v - 1] == literal
       }
-      match pattern[p] {
-        '*' => {
-          table[(p + 1) * width + v] = true
-          if v < value.length() {
-            table[p * width + v + 1] = true
-          }
-        }
-        '?' => if v < value.length() { table[(p + 1) * width + v + 1] = true }
-        literal =>
-          if v < value.length() && value[v] == literal {
-            table[(p + 1) * width + v + 1] = true
-          }
-      }
+      diagonal = previous
     }
   }
-  table[pattern.length() * width + value.length()]
+  row[value.length()]
 }
 
 ///|
@@ -121,29 +115,20 @@ pub fn PathGlob::matches(self : PathGlob, path : String) -> Bool {
     return false
   }
   let values = path.split("/").map(fn(part) { part.to_owned() }).collect()
-  let width = values.length() + 1
-  let table = Array::make((self.segments.length() + 1) * width, false)
-  table[0] = true
-  for pattern_index = 0
-      pattern_index < self.segments.length()
-      pattern_index = pattern_index + 1 {
-    for value_index = 0
-        value_index <= values.length()
-        value_index = value_index + 1 {
-      if !table[pattern_index * width + value_index] {
-        continue
+  let row = Array::make(values.length() + 1, false)
+  row[0] = true
+  for pattern in self.segments {
+    let mut diagonal = row[0]
+    row[0] = row[0] && pattern == "**"
+    for v = 1; v <= values.length(); v = v + 1 {
+      let previous = row[v]
+      row[v] = if pattern == "**" {
+        previous || row[v - 1]
+      } else {
+        diagonal && segment_matches(pattern, values[v - 1])
       }
-      let pattern = self.segments[pattern_index]
-      if pattern == "**" {
-        table[(pattern_index + 1) * width + value_index] = true
-        if value_index < values.length() {
-          table[pattern_index * width + value_index + 1] = true
-        }
-      } else if value_index < values.length() &&
-        segment_matches(pattern, values[value_index]) {
-        table[(pattern_index + 1) * width + value_index + 1] = true
-      }
+      diagonal = previous
     }
   }
-  table[self.segments.length() * width + values.length()]
+  row[values.length()]
 }

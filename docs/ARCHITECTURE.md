@@ -28,8 +28,8 @@ names where ambiguity would matter, and canonical serialization.
 ## Matching and Aggregation
 
 `PathGlob` splits both patterns and paths into slash-delimited segments. A
-bounded dynamic-programming table evaluates `*` and `?` within a segment;
-another table evaluates whole-segment `**`. Matching is deterministic and does
+bounded rolling dynamic-programming row evaluates `*` and `?` within a segment;
+another rolling row evaluates whole-segment `**`. Matching is deterministic and does
 not touch the filesystem.
 
 Among matching owner rules, greatest specificity wins; a later rule wins an
@@ -77,8 +77,8 @@ not expose binary classification, so adapted changes conservatively have
 ## Complexity and Limits
 
 - Policy/manifest parsing: linear in bounded source size.
-- Segment glob: `O(pattern_chars * segment_chars)` memory and time.
-- Path glob: `O(pattern_segments * path_segments)` memory and time.
+- Segment glob: `O(segment_chars)` auxiliary state, `O(pattern_chars * segment_chars)` time.
+- Path glob: `O(path_segments)` auxiliary state, `O(pattern_segments * path_segments)` time.
 - Evaluation: changes multiplied by ordered owner/rule counts and evidence size.
 - Policy comparison: requested paths multiplied by both policy match costs.
 - Policy/manifest source: 4 MiB; evidence source: 1 MiB; diff adapter: 16 MiB.
